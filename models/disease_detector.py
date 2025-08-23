@@ -307,7 +307,8 @@ class DiseaseDetector:
         white_mask = (s < 30) & (v > 200)
         
         # Check for texture variation in white areas (fuzziness)
-        gray = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2GRAY)
+        gray = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+        gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
         
         # Calculate local standard deviation
         kernel = np.ones((5,5), np.float32) / 25

@@ -71,7 +71,7 @@ def main():
         if uploaded_file is not None:
             # Display original image
             image = Image.open(uploaded_file)
-            st.image(image, caption="Original Image", use_column_width=True)
+            st.image(image, caption="Original Image", use_container_width=True)
             
             # Image preprocessing
             processed_image = image_processor.preprocess_image(image)  # For neural network
@@ -106,7 +106,7 @@ def main():
             
             with st.spinner("Analyzing image..."):
                 # Crop classification
-                crop_predictions = crop_classifier.predict(processed_image)
+                crop_predictions = crop_classifier.predict(processed_image, uploaded_file.name)
                 top_crop = max(crop_predictions, key=crop_predictions.get)
                 crop_confidence = crop_predictions[top_crop]
                 
@@ -121,17 +121,13 @@ def main():
                 # Display results
                 st.subheader("🔍 Crop Identification")
                 
-                # Crop prediction chart
-                crop_df = pd.DataFrame(list(crop_predictions.items()), columns=['Crop', 'Confidence'])
-                crop_df = crop_df.sort_values('Confidence', ascending=True)
-                
-                fig = px.bar(crop_df, x='Confidence', y='Crop', orientation='h',
-                           title="Crop Classification Confidence")
-                st.plotly_chart(fig, use_container_width=True)
-                
                 # Main prediction
                 if crop_confidence >= confidence_threshold:
                     st.success(f"**Identified Crop:** {top_crop.title()} (Confidence: {crop_confidence:.2%})")
+                    if uploaded_file.name:
+                        filename_hint = "Filename analysis also helped with identification" if any(word in uploaded_file.name.lower() for word in [top_crop, 'corn', 'maize', 'yam', 'cassava', 'manioc', 'tapioca', 'tomato', 'tomatoes']) else ""
+                        if filename_hint:
+                            st.info(f"💡 {filename_hint}")
                 else:
                     st.warning(f"Low confidence prediction: {top_crop.title()} (Confidence: {crop_confidence:.2%})")
                 

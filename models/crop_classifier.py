@@ -56,7 +56,7 @@ class CropClassifier:
         # We would typically load custom weights here trained on crop data
         pass
     
-    def predict(self, image):
+    def predict(self, image, filename_hint=None):
         """Predict crop type from preprocessed image"""
         # Ensure image is in correct format
         if isinstance(image, Image.Image):
@@ -70,6 +70,10 @@ class CropClassifier:
         
         # Apply crop-specific logic based on visual features
         crop_scores = self._apply_crop_heuristics(image[0], predictions[0])
+        
+        # Use filename hint if provided
+        if filename_hint:
+            crop_scores = self._apply_filename_boost(crop_scores, filename_hint)
         
         # Convert to probability dictionary
         result = {}
@@ -235,3 +239,26 @@ class CropClassifier:
         features['cylindrical'] = aspect_ratio / 3.0 if aspect_ratio > 2.0 else 0
         
         return features
+    
+    def _apply_filename_boost(self, scores, filename):
+        """Boost confidence for crops mentioned in filename"""
+        filename_lower = filename.lower()
+        
+        # Check for crop names in filename
+        crop_boosts = {
+            'corn': 0.2 if any(word in filename_lower for word in ['corn', 'maize']) else 0,
+            'yam': 0.2 if 'yam' in filename_lower else 0,
+            'cassava': 0.2 if any(word in filename_lower for word in ['cassava', 'manioc', 'tapioca']) else 0,
+            'tomato': 0.2 if any(word in filename_lower for word in ['tomato', 'tomatoes']) else 0
+        }
+        
+        # Apply boosts
+        boosted_scores = scores.copy()
+        for i, crop in enumerate(self.crop_classes):
+            if crop_boosts[crop] > 0:
+                boosted_scores[i] += crop_boosts[crop]
+        
+        # Renormalize
+        boosted_scores = np.exp(boosted_scores) / np.sum(np.exp(boosted_scores))
+        
+        return boosted_scores
