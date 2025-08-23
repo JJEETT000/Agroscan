@@ -74,7 +74,8 @@ def main():
             st.image(image, caption="Original Image", use_column_width=True)
             
             # Image preprocessing
-            processed_image = image_processor.preprocess_image(image)
+            processed_image = image_processor.preprocess_image(image)  # For neural network
+            resized_image = image_processor.resize_image(image)  # For quality/disease analysis
             
             if show_preprocessing:
                 st.subheader("Preprocessing Steps")
@@ -86,8 +87,7 @@ def main():
                 axes[0].axis('off')
                 
                 # Resized
-                resized = image_processor.resize_image(image)
-                axes[1].imshow(resized)
+                axes[1].imshow(resized_image)
                 axes[1].set_title("Resized")
                 axes[1].axis('off')
                 
@@ -111,12 +111,12 @@ def main():
                 crop_confidence = crop_predictions[top_crop]
                 
                 # Quality assessment
-                quality_result = quality_assessor.assess_quality(processed_image, top_crop)
+                quality_result = quality_assessor.assess_quality(resized_image, top_crop)
                 
                 # Disease detection (if spoiled)
                 disease_result = None
                 if quality_result['status'] == 'spoiled':
-                    disease_result = disease_detector.detect_disease(processed_image, top_crop)
+                    disease_result = disease_detector.detect_disease(resized_image, top_crop)
                 
                 # Display results
                 st.subheader("🔍 Crop Identification")
