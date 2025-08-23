@@ -225,7 +225,9 @@ class CropClassifier:
         
         # Irregular shape (yam)
         # Based on edge complexity
-        edges = np.abs(np.diff(gray, axis=0)) + np.abs(np.diff(gray, axis=1, prepend=0))
+        edges_v = np.abs(np.diff(gray, axis=0, prepend=0))
+        edges_h = np.abs(np.diff(gray, axis=1, prepend=0))
+        edges = edges_v + edges_h
         edge_complexity = np.std(edges) / (np.mean(edges) + 1e-6)
         features['irregular'] = min(edge_complexity / 2.0, 1.0)
         
