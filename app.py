@@ -92,8 +92,10 @@ def main():
                 axes[1].axis('off')
                 
                 # Normalized
-                normalized = image_processor.normalize_image(resized)
-                axes[2].imshow(normalized)
+                normalized = image_processor.normalize_image(resized_image)
+                # Denormalize for display
+                normalized_display = image_processor.denormalize_image(normalized)
+                axes[2].imshow(normalized_display)
                 axes[2].set_title("Normalized")
                 axes[2].axis('off')
                 
@@ -105,9 +107,15 @@ def main():
             st.header("Analysis Results")
             
             with st.spinner("Analyzing image..."):
+                # Ensure we have the processed images available
+                if 'processed_image' not in locals():
+                    processed_image = image_processor.preprocess_image(image)
+                if 'resized_image' not in locals():
+                    resized_image = image_processor.resize_image(image)
+                
                 # Crop classification
                 crop_predictions = crop_classifier.predict(processed_image, uploaded_file.name)
-                top_crop = max(crop_predictions, key=crop_predictions.get)
+                top_crop = max(crop_predictions.items(), key=lambda x: x[1])[0]
                 crop_confidence = crop_predictions[top_crop]
                 
                 # Quality assessment

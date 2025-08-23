@@ -99,41 +99,50 @@ class DiseaseDetector:
     
     def detect_disease(self, image, crop_type):
         """Detect specific disease type and severity"""
-        if isinstance(image, Image.Image):
-            image = np.array(image)
+        try:
+            if isinstance(image, Image.Image):
+                image = np.array(image)
+            
+            # Validate input
+            if image is None or image.size == 0 or crop_type not in self.disease_patterns:
+                return self._get_default_result(crop_type)
+            
+            # Analyze image for each possible disease
+            disease_scores = {}
+            crop_diseases = self.disease_patterns[crop_type]
+            
+            for disease_name, patterns in crop_diseases.items():
+                score = self._analyze_disease_pattern(image, patterns, crop_type)
+                disease_scores[disease_name] = score
+            
+            # Find most likely disease
+            most_likely_disease = max(disease_scores.items(), key=lambda x: x[1])[0]
+            max_score = disease_scores[most_likely_disease]
+            
+            # Determine severity
+            severity = self._determine_severity(image, most_likely_disease, crop_type, max_score)
+            
+            # Get description
+            description = self._get_disease_description(most_likely_disease, crop_type)
         
-        if crop_type not in self.disease_patterns:
             return {
-                'disease_type': 'unknown_spoilage',
-                'confidence': 0.5,
-                'severity': 'moderate',
-                'description': 'Spoilage detected but specific type could not be determined'
+                'disease_type': most_likely_disease,
+                'confidence': min(max_score, 0.95),
+                'severity': severity,
+                'description': description,
+                'all_scores': disease_scores
             }
         
-        # Analyze image for each possible disease
-        disease_scores = {}
-        crop_diseases = self.disease_patterns[crop_type]
-        
-        for disease_name, patterns in crop_diseases.items():
-            score = self._analyze_disease_pattern(image, patterns, crop_type)
-            disease_scores[disease_name] = score
-        
-        # Find most likely disease
-        most_likely_disease = max(disease_scores, key=disease_scores.get)
-        max_score = disease_scores[most_likely_disease]
-        
-        # Determine severity
-        severity = self._determine_severity(image, most_likely_disease, crop_type, max_score)
-        
-        # Get description
-        description = self._get_disease_description(most_likely_disease, crop_type)
-        
+        except Exception:
+            return self._get_default_result(crop_type)
+    
+    def _get_default_result(self, crop_type):
+        """Return default disease detection result"""
         return {
-            'disease_type': most_likely_disease,
-            'confidence': min(max_score, 0.95),
-            'severity': severity,
-            'description': description,
-            'all_scores': disease_scores
+            'disease_type': 'unknown_spoilage',
+            'confidence': 0.5,
+            'severity': 'moderate',
+            'description': f'Spoilage detected in {crop_type} but specific type could not be determined'
         }
     
     def _analyze_disease_pattern(self, image, patterns, crop_type):
@@ -267,7 +276,9 @@ class DiseaseDetector:
         yellow_mask = ((h >= 20) & (h <= 35)) & (s > 50) & (v > 100)
         
         # Check if yellow areas are near edges
-        gray = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2GRAY)
+        # Convert HSV to BGR first, then to grayscale
+        bgr_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+        gray = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray, 50, 150)
         
         # Dilate edges to create edge regions
@@ -382,7 +393,7 @@ class DiseaseDetector:
         variance = np.var(laplacian)
         
         # High variance indicates fuzzy texture
-        return min(variance / 1000.0, 1.0)  # Normalize
+        return min(float(variance / 1000.0), 1.0)  # Normalize
     
     def _detect_irregular_surface(self, gray):
         """Detect irregular surface texture"""

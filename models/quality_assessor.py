@@ -15,37 +15,59 @@ class QualityAssessor:
     
     def assess_quality(self, image, crop_type):
         """Assess the quality of the given crop image"""
-        if isinstance(image, Image.Image):
-            image = np.array(image)
+        try:
+            if isinstance(image, Image.Image):
+                image = np.array(image)
+            
+            # Validate input
+            if image is None or image.size == 0:
+                return self._get_default_result()
+            
+            # Extract various quality indicators efficiently
+            color_analysis = self._analyze_color_degradation(image, crop_type)
+            texture_analysis = self._analyze_texture_degradation(image, crop_type)
+            shape_analysis = self._analyze_shape_degradation(image, crop_type)
+            surface_analysis = self._analyze_surface_condition(image, crop_type)
+            
+            # Combine all indicators
+            spoilage_score = self._calculate_spoilage_score(
+                color_analysis, texture_analysis, shape_analysis, surface_analysis, crop_type
+            )
+            
+            # Determine quality status
+            if spoilage_score < 0.3:
+                status = 'fresh'
+                confidence = 1.0 - spoilage_score
+            else:
+                status = 'spoiled'
+                confidence = spoilage_score
         
-        # Extract various quality indicators
-        color_analysis = self._analyze_color_degradation(image, crop_type)
-        texture_analysis = self._analyze_texture_degradation(image, crop_type)
-        shape_analysis = self._analyze_shape_degradation(image, crop_type)
-        surface_analysis = self._analyze_surface_condition(image, crop_type)
+            return {
+                'status': status,
+                'confidence': min(confidence, 0.95),  # Cap confidence at 95%
+                'spoilage_score': spoilage_score,
+                'indicators': {
+                    'color': color_analysis,
+                    'texture': texture_analysis,
+                    'shape': shape_analysis,
+                    'surface': surface_analysis
+                }
+            }
         
-        # Combine all indicators
-        spoilage_score = self._calculate_spoilage_score(
-            color_analysis, texture_analysis, shape_analysis, surface_analysis, crop_type
-        )
-        
-        # Determine quality status
-        if spoilage_score < 0.3:
-            status = 'fresh'
-            confidence = 1.0 - spoilage_score
-        else:
-            status = 'spoiled'
-            confidence = spoilage_score
-        
+        except Exception:
+            return self._get_default_result()
+    
+    def _get_default_result(self):
+        """Return default quality assessment result"""
         return {
-            'status': status,
-            'confidence': min(confidence, 0.95),  # Cap confidence at 95%
-            'spoilage_score': spoilage_score,
+            'status': 'unknown',
+            'confidence': 0.5,
+            'spoilage_score': 0.5,
             'indicators': {
-                'color': color_analysis,
-                'texture': texture_analysis,
-                'shape': shape_analysis,
-                'surface': surface_analysis
+                'color': 0.5,
+                'texture': 0.5,
+                'shape': 0.5,
+                'surface': 0.5
             }
         }
     
@@ -113,7 +135,7 @@ class QualityAssessor:
             # Irregular texture indicates damage
             expected_variance = 800  # Typical for healthy corn
             variance_deviation = abs(texture_variance - expected_variance) / expected_variance
-            degradation_score += min(variance_deviation, 1.0) * 0.6
+            degradation_score += min(float(variance_deviation), 1.0) * 0.6
             
         elif crop_type == 'tomato':
             # Tomato should have smooth skin
