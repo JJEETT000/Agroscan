@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2025-08-23",
+    "description": "Comprehensive treatment protocols for agricultural crop diseases and spoilage",
+    "crops_covered": ["corn", "tomato", "yam", "cassava"],
+    "severity_levels": ["mild", "moderate", "severe", "critical"]
+  },
+  "treatment_principles": {
+    "immediate_response": "Quick action to prevent spread and minimize loss",
+    "prevention_focus": "Long-term strategies to prevent recurrence",
+    "integrated_approach": "Combine multiple treatment methods for best results",
+    "safety_first": "Prioritize food safety and consumer health",
+    "sustainable_practices": "Use environmentally responsible methods"
+  },
+  "general_guidelines": {
+    "hygiene": [
+      "Always wash hands before handling crops",
+      "Use clean, sanitized tools and equipment",
+      "Maintain clean storage and processing areas",
+      "Separate healthy from affected crops immediately"
+    ],
+    "monitoring": [
+      "Conduct regular visual inspections",
+      "Monitor environmental conditions",
+      "Keep detailed records of treatments applied",
+      "Track effectiveness of interventions"
+    ],
+    "professional_consultation": [
+      "Consult agricultural extension services for severe cases",
+      "Contact food safety authorities for commercial operations",
+      "Seek professional advice for recurring problems",
+      "Consider laboratory testing for disease identification"
+    ]
+  },
+  "emergency_contacts": {
+    "note": "Contact information would vary by region and should be updated with local resources",
+    "types": [
+      "Local agricultural extension office",
+      "Plant pathology laboratories",
+      "Food safety inspection agencies",
+      "Agricultural pest control specialists",
+      "Crop insurance representatives"
+    ]
+  },
+  "legal_considerations": {
+    "commercial_operations": [
+      "Report significant contamination to relevant authorities",
+      "Maintain records for traceability",
+      "Follow local food safety regulations",
+      "Consider liability and insurance implications"
+    ],
+    "disposal_requirements": [
+      "Follow local regulations for agricultural waste disposal",
+      "Do not compost severely diseased plant material",
+      "Consider environmental impact of treatments",
+      "Document disposal methods for compliance"
+    ]
+  },
+  "cost_considerations": {
+    "treatment_costs": "Factor in cost of treatments vs. crop value",
+    "prevention_investment": "Invest in prevention to reduce long-term costs",
+    "professional_services": "Budget for professional consultation and testing",
+    "insurance": "Consider crop insurance for protection against major losses"
+  },
+  "seasonal_considerations": {
+    "spring": "Focus on prevention and early detection",
+    "summer": "Monitor for heat and humidity related issues",
+    "fall": "Prepare for harvest and storage challenges",
+    "winter": "Maintain storage conditions and monitor stored crops"
+  },
+  "technology_integration": {
+    "monitoring_tools": "Use sensors for environmental monitoring",
+    "record_keeping": "Implement digital record keeping systems",
+    "early_warning": "Consider automated alert systems",
+    "precision_agriculture": "Use targeted treatment applications"
+  }
+}
