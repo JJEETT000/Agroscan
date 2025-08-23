@@ -190,7 +190,9 @@ class CropClassifier:
         
         # Grid pattern (corn kernels)
         # Simple edge detection for regular patterns
-        edges = np.abs(np.diff(gray, axis=0)) + np.abs(np.diff(gray, axis=1, prepend=0))
+        edges_v = np.abs(np.diff(gray, axis=0, prepend=0))
+        edges_h = np.abs(np.diff(gray, axis=1, prepend=0))
+        edges = edges_v + edges_h
         features['grid_pattern'] = np.mean(edges > np.percentile(edges, 80))
         
         # Smooth texture (tomato)
